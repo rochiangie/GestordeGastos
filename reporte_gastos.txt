@@ -1,0 +1,55 @@
+Saldo inicial: $150.00
+
+Gastos registrados:
+
+Fecha: 05/07/2024
+Descripción: luz
+Categoría: Compras
+Costo: $200.00
+
+Fecha: 10/07/2024
+Descripción: carrefour
+Categoría: Compras
+Costo: $100.00
+
+Fecha: 11/07/2024
+Descripción: tarjetas
+Categoría: Tarjetas
+Costo: $200.00
+
+Fecha: 12/07/2024
+Descripción: comida y cosas
+Categoría: Comida
+Costo: $150.00
+
+Fecha: 15/07/2024
+Descripción: porro
+Categoría: Porro
+Costo: $100.00
+
+Fecha: 18/07/2024
+Descripción: flores
+Categoría: Camila
+Costo: $200.00
+
+Fecha: 20/07/2024
+Descripción: salidas
+Categoría: Compras
+Costo: $100.00
+
+Fecha: 19/07/2024
+Descripción: parque
+Categoría: Camila
+Costo: $200.00
+
+Fecha: 21/07/2024
+Descripción: compras y comida
+Categoría: Comida
+Costo: $100.00
+
+Fecha: 31/07/2024
+Descripción: google
+Categoría: Servicios
+Costo: $100.00
+
+Saldo final: $150.00
