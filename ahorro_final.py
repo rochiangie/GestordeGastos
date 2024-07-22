@@ -96,6 +96,7 @@ def mostrar_menu_principal():
     ttk.Button(main_frame, text="Gráfico de Categorías", command=mostrar_grafico_categorias).pack(pady=10)
     ttk.Button(main_frame, text="Resetear Presupuesto", command=resetear_presupuesto).pack(pady=10)
     ttk.Button(main_frame, text="Generar Reporte", command=generar_reporte).pack(pady=10)
+    ttk.Button(main_frame, text="Configurar Presupuesto", command=configurar_presupuesto).pack(pady=10)
 
 # Botón para editar el saldo
     ttk.Button(main_frame, text="Editar Saldo", command=editar_saldo).pack(pady=10)

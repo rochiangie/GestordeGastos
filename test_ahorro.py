@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 import tkinter as tk
 from tkinter import messagebox
-from ahorro import registrar_gasto, ver_saldo, ver_gastos, configurar_presupuesto, saldo_actual, gastos
+from ahorro_final import registrar_gasto, ver_saldo, ver_gastos, configurar_presupuesto, saldo_actual, gastos
 
 class TestApp(unittest.TestCase):
 
