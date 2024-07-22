@@ -46,7 +46,7 @@ class TestApp(unittest.TestCase):
     def test_ver_saldo(self, mock_showinfo):
         if root.winfo_exists():
             ver_saldo()
-            mock_showinfo.assert_called_with("Saldo Actual", "Tu saldo actual es: $1500000.00")
+        mock_showinfo.assert_called_with("Saldo Actual", "Tu saldo actual es: $1500000.00")
 
     def test_ver_gastos(self):
         if root.winfo_exists():
@@ -72,4 +72,7 @@ class TestApp(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
 
