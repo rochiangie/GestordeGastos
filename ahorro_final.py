@@ -5,14 +5,19 @@ from PIL import Image, ImageTk
 from datetime import datetime, timedelta
 import json
 import matplotlib.pyplot as plt
+import os
 
 # Variables globales para almacenar saldo y gastos
 saldo_actual = 0.0
 gastos = []
 fecha_inicio = datetime.now()
+usuario_actual = None
 
-# Función para guardar los datos en un archivo JSON
+# Función para guardar los datos del usuario en un archivo JSON
 def guardar_datos():
+    if usuario_actual is None:
+        return
+
     datos = {
         "saldo_actual": saldo_actual,
         "gastos": [
@@ -24,14 +29,17 @@ def guardar_datos():
             } for gasto in gastos
         ]
     }
-    with open("datos.json", "w") as archivo:
+    with open(f"datos_{usuario_actual}.json", "w") as archivo:
         json.dump(datos, archivo)
 
-# Función para cargar los datos desde un archivo JSON
+# Función para cargar los datos del usuario desde un archivo JSON
 def cargar_datos():
     global saldo_actual, gastos
+    if usuario_actual is None:
+        return
+
     try:
-        with open("datos.json", "r") as archivo:
+        with open(f"datos_{usuario_actual}.json", "r") as archivo:
             datos = json.load(archivo)
             saldo_actual = datos["saldo_actual"]
             gastos = [
@@ -44,6 +52,117 @@ def cargar_datos():
             ]
     except FileNotFoundError:
         pass
+
+# Función para registrar un nuevo usuario
+# Función para registrar un nuevo usuario
+def registrar_usuario():
+    ventana_registro = tk.Toplevel(root)
+    ventana_registro.title("Registrar Usuario")
+
+    frame = ttk.Frame(ventana_registro, padding="10")
+    frame.pack(fill="both", expand=True)
+
+    ttk.Label(frame, text="Nombre de Usuario").pack(pady=5)
+    usuario_entry = ttk.Entry(frame)
+    usuario_entry.pack(pady=5)
+
+    ttk.Label(frame, text="Contraseña").pack(pady=5)
+    contrasena_entry = ttk.Entry(frame, show="*")
+    contrasena_entry.pack(pady=5)
+
+    def guardar_usuario():
+        usuario = usuario_entry.get()
+        contrasena = contrasena_entry.get()
+        if usuario and contrasena:
+            if os.path.exists("usuarios.json") and os.stat("usuarios.json").st_size > 0:
+                with open(f"usuarios.json", "r") as archivo:
+                    usuarios = json.load(archivo)
+            else:
+                usuarios = {}
+
+            if usuario in usuarios:
+                messagebox.showerror("Error", "El usuario ya existe.")
+            else:
+                usuarios[usuario] = contrasena
+                with open(f"usuarios.json", "w") as archivo:
+                    json.dump(usuarios, archivo)
+                messagebox.showinfo("Info", "Usuario registrado con éxito")
+                ventana_registro.destroy()
+        else:
+            messagebox.showerror("Error", "Por favor, complete todos los campos.")
+
+    ttk.Button(frame, text="Registrar", command=guardar_usuario).pack(pady=10)
+
+# Función para iniciar sesión
+def iniciar_sesion():
+    ventana_login = tk.Toplevel(root)
+    ventana_login.title("Iniciar Sesión")
+
+    frame = ttk.Frame(ventana_login, padding="10")
+    frame.pack(fill="both", expand=True)
+
+    ttk.Label(frame, text="Nombre de Usuario").pack(pady=5)
+    usuario_entry = ttk.Entry(frame)
+    usuario_entry.pack(pady=5)
+
+    ttk.Label(frame, text="Contraseña").pack(pady=5)
+    contrasena_entry = ttk.Entry(frame, show="*")
+    contrasena_entry.pack(pady=5)
+
+    def verificar_usuario():
+        global usuario_actual
+        usuario = usuario_entry.get()
+        contrasena = contrasena_entry.get()
+        
+        if os.path.exists("usuarios.json") and os.stat("usuarios.json").st_size > 0:
+            with open(f"usuarios.json", "r") as archivo:
+                usuarios = json.load(archivo)
+        else:
+            usuarios = {}
+
+        if usuario in usuarios and usuarios[usuario] == contrasena:
+            usuario_actual = usuario
+            cargar_datos()
+            messagebox.showinfo("Info", f"Bienvenido {usuario_actual}")
+            ventana_login.destroy()
+            mostrar_menu_principal()
+        else:
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos")
+
+    ttk.Button(frame, text="Iniciar Sesión", command=verificar_usuario).pack(pady=10)
+
+# Función para iniciar sesión
+def iniciar_sesion():
+    ventana_login = tk.Toplevel(root)
+    ventana_login.title("Iniciar Sesión")
+
+    frame = ttk.Frame(ventana_login, padding="10")
+    frame.pack(fill="both", expand=True)
+
+    ttk.Label(frame, text="Nombre de Usuario").pack(pady=5)
+    usuario_entry = ttk.Entry(frame)
+    usuario_entry.pack(pady=5)
+
+    ttk.Label(frame, text="Contraseña").pack(pady=5)
+    contrasena_entry = ttk.Entry(frame, show="*")
+    contrasena_entry.pack(pady=5)
+
+    def verificar_usuario():
+        global usuario_actual
+        usuario = usuario_entry.get()
+        contrasena = contrasena_entry.get()
+        with open(f"usuarios.json", "r") as archivo:
+            usuarios = json.load(archivo)
+        if usuario in usuarios and usuarios[usuario] == contrasena:
+            usuario_actual = usuario
+            cargar_datos()
+            messagebox.showinfo("Info", f"Bienvenido {usuario_actual}")
+            ventana_login.destroy()
+            mostrar_menu_principal()
+        else:
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos")
+
+    ttk.Button(frame, text="Iniciar Sesión", command=verificar_usuario).pack(pady=10)
 
 # Función para configurar el saldo inicial
 def configurar_saldo_inicial():
@@ -97,8 +216,6 @@ def mostrar_menu_principal():
     ttk.Button(main_frame, text="Resetear Presupuesto", command=resetear_presupuesto).pack(pady=10)
     ttk.Button(main_frame, text="Configurar Presupuesto", command=configurar_presupuesto).pack(pady=10)
     ttk.Button(main_frame, text="Generar Reporte", command=generar_reporte).pack(pady=10)
-
-# Botón para editar el saldo
     ttk.Button(main_frame, text="Editar Saldo", command=editar_saldo).pack(pady=10)
     # Solo mostrar "Configurar Presupuesto" si ha pasado un mes desde la fecha de inicio
     if datetime.now() >= fecha_inicio + timedelta(days=30):
@@ -148,41 +265,39 @@ def registrar_gasto():
 
 # Función para eliminar un gasto
 def eliminar_gasto():
-    if not gastos:
-        messagebox.showinfo("Info", "No hay gastos registrados para eliminar.")
-        return
-    
     ventana_eliminar = tk.Toplevel(root)
     ventana_eliminar.title("Eliminar Gasto")
     
     frame = ttk.Frame(ventana_eliminar, padding="10")
     frame.pack(fill="both", expand=True)
     
-    ttk.Label(frame, text="Selecciona el gasto a eliminar:").pack(pady=10)
+    ttk.Label(frame, text="Seleccione el gasto a eliminar:").pack(pady=5)
     
-    gastos_descripcion = [f"{gasto['descripcion']} ({gasto['categoria']}) - ${gasto['costo']:.2f}" for gasto in gastos]
-    gasto_combobox = ttk.Combobox(frame, values=gastos_descripcion)
-    gasto_combobox.pack(pady=10)
+    gasto_listbox = tk.Listbox(frame)
+    gasto_listbox.pack(pady=5)
     
-    def confirmar_eliminar():
-        seleccion = gasto_combobox.get()
-        for gasto in gastos:
-            if seleccion == f"{gasto['descripcion']} ({gasto['categoria']}) - ${gasto['costo']:.2f}":
-                gastos.remove(gasto)
-                global saldo_actual
-                saldo_actual += gasto["costo"]  # Revertir el costo eliminado al saldo
-                messagebox.showinfo("Info", "Gasto eliminado correctamente.")
-                ventana_eliminar.destroy()
-                guardar_datos()
-                return
+    for idx, gasto in enumerate(gastos):
+        gasto_listbox.insert(idx, f"{gasto['fecha'].strftime('%d/%m/%Y')} - {gasto['descripcion']} - ${gasto['costo']}")
     
-    ttk.Button(frame, text="Eliminar", command=confirmar_eliminar).pack(pady=10)
+    def eliminar_seleccionado():
+        try:
+            seleccion = gasto_listbox.curselection()[0]
+            gasto = gastos.pop(seleccion)
+            global saldo_actual
+            saldo_actual += gasto["costo"]
+            messagebox.showinfo("Info", "Gasto eliminado con éxito")
+            ventana_eliminar.destroy()
+            guardar_datos()
+        except IndexError:
+            messagebox.showerror("Error", "Por favor, seleccione un gasto a eliminar")
+    
+    ttk.Button(frame, text="Eliminar", command=eliminar_seleccionado).pack(pady=10)
 
-# Función para ver el saldo
+# Función para ver el saldo actual
 def ver_saldo():
-    messagebox.showinfo("Saldo Actual", f"Tu saldo actual es: ${saldo_actual:.2f}")
+    messagebox.showinfo("Saldo Actual", f"Saldo actual: ${saldo_actual:.2f}")
 
-# Función para ver los gastos en una lista
+# Función para ver todos los gastos
 def ver_gastos():
     ventana_gastos = tk.Toplevel(root)
     ventana_gastos.title("Gastos Registrados")
@@ -190,10 +305,15 @@ def ver_gastos():
     frame = ttk.Frame(ventana_gastos, padding="10")
     frame.pack(fill="both", expand=True)
     
+    text_area = tk.Text(frame, wrap="word", width=50, height=15)
+    text_area.pack(pady=5)
+    
     for gasto in gastos:
-        ttk.Label(frame, text=f"{gasto['fecha'].strftime('%d/%m/%Y')} - {gasto['descripcion']} ({gasto['categoria']}): ${gasto['costo']:.2f}").pack(pady=2)
+        text_area.insert("end", f"{gasto['fecha'].strftime('%d/%m/%Y')} - {gasto['descripcion']} - ${gasto['costo']} - {gasto['categoria']}\n")
+    
+    text_area.config(state="disabled")
 
-# Función para ver los gastos en un calendario
+# Función para ver el calendario de gastos
 def ver_calendario():
     ventana_calendario = tk.Toplevel(root)
     ventana_calendario.title("Calendario de Gastos")
@@ -201,19 +321,44 @@ def ver_calendario():
     frame = ttk.Frame(ventana_calendario, padding="10")
     frame.pack(fill="both", expand=True)
     
-    cal = Calendar(frame, selectmode='day', year=datetime.now().year, month=datetime.now().month, day=datetime.now().day)
-    cal.pack(pady=20)
+    cal = Calendar(frame, selectmode="day")
+    cal.pack(pady=5)
     
-    gastos_fecha = tk.StringVar()
-    ttk.Label(frame, textvariable=gastos_fecha, background="black", foreground="white").pack(pady=5)
-    
-    def mostrar_gastos(event):
+    def mostrar_gastos_dia():
         fecha_seleccionada = cal.selection_get()
-        gastos_en_fecha = [gasto for gasto in gastos if gasto['fecha'].date() == fecha_seleccionada]
-        texto_gastos = "\n".join([f"{gasto['descripcion']} ({gasto['categoria']}): ${gasto['costo']:.2f}" for gasto in gastos_en_fecha])
-        gastos_fecha.set(texto_gastos)
+        gastos_dia = [gasto for gasto in gastos if gasto["fecha"].date() == fecha_seleccionada]
+        if gastos_dia:
+            texto_gastos = "\n".join([f"{gasto['descripcion']} - ${gasto['costo']} - {gasto['categoria']}" for gasto in gastos_dia])
+        else:
+            texto_gastos = "No hay gastos registrados en esta fecha"
+        messagebox.showinfo(f"Gastos del {fecha_seleccionada.strftime('%d/%m/%Y')}", texto_gastos)
     
-    cal.bind("<<CalendarSelected>>", mostrar_gastos)
+    ttk.Button(frame, text="Ver Gastos del Día", command=mostrar_gastos_dia).pack(pady=10)
+
+# Función para mostrar el gráfico de categorías
+def mostrar_grafico_categorias():
+    categorias = {}
+    for gasto in gastos:
+        if gasto["categoria"] in categorias:
+            categorias[gasto["categoria"]] += gasto["costo"]
+        else:
+            categorias[gasto["categoria"]] = gasto["costo"]
+    
+    if categorias:
+        plt.figure(figsize=(10, 5))
+        plt.pie(categorias.values(), labels=categorias.keys(), autopct="%1.1f%%", startangle=140)
+        plt.title("Distribución de Gastos por Categoría")
+        plt.show()
+    else:
+        messagebox.showinfo("Info", "No hay gastos registrados para generar el gráfico")
+
+# Función para resetear el presupuesto
+def resetear_presupuesto():
+    global saldo_actual, gastos
+    saldo_actual = 0.0
+    gastos = []
+    guardar_datos()
+    messagebox.showinfo("Info", "Presupuesto reseteado con éxito")
 
 # Función para configurar el presupuesto
 def configurar_presupuesto():
@@ -223,15 +368,14 @@ def configurar_presupuesto():
     frame = ttk.Frame(ventana_presupuesto, padding="10")
     frame.pack(fill="both", expand=True)
     
-    ttk.Label(frame, text="Presupuesto").pack(pady=5)
-    presupuesto_entry = ttk.Entry(frame)
-    presupuesto_entry.pack(pady=5)
+    ttk.Label(frame, text="Ingrese el saldo inicial").pack(pady=5)
+    saldo_entry = ttk.Entry(frame)
+    saldo_entry.pack(pady=5)
     
     def guardar_presupuesto():
         try:
-            presupuesto = float(presupuesto_entry.get())
             global saldo_actual
-            saldo_actual = presupuesto  # Configurar el saldo inicial con el presupuesto
+            saldo_actual = float(saldo_entry.get())
             messagebox.showinfo("Info", "Presupuesto configurado con éxito")
             ventana_presupuesto.destroy()
             guardar_datos()
@@ -240,95 +384,63 @@ def configurar_presupuesto():
     
     ttk.Button(frame, text="Guardar", command=guardar_presupuesto).pack(pady=10)
 
-# Función para resetear el presupuesto
-def resetear_presupuesto():
-    global saldo_actual
-    saldo_actual = 0.0
-    messagebox.showinfo("Info", "Presupuesto reseteado correctamente a $0.00")
-    guardar_datos()
-
-# Función para mostrar el gráfico tipo torta
-def mostrar_grafico_categorias():
-    if not gastos:
-        messagebox.showinfo("Info", "No hay gastos registrados para mostrar en el gráfico.")
-        return
-
-    categorias = list(set([gasto["categoria"] for gasto in gastos]))
-    total_por_categoria = [sum([gasto["costo"] for gasto in gastos if gasto["categoria"] == cat]) for cat in categorias]
-
-    plt.figure(figsize=(8, 6))
-    plt.pie(total_por_categoria, labels=categorias, autopct="%1.1f%%", startangle=140)
-    plt.axis("equal")
-    plt.title("Distribución de Gastos por Categorías")
-    plt.show()
-
 # Función para generar un reporte de gastos
 def generar_reporte():
-    with open("reporte_gastos.txt", "w") as archivo:
-        archivo.write(f"Saldo inicial: ${saldo_actual:.2f}\n\n")
-        archivo.write("Gastos registrados:\n\n")
-        for gasto in gastos:
-            archivo.write(f"Fecha: {gasto['fecha'].strftime('%d/%m/%Y')}\n")
-            archivo.write(f"Descripción: {gasto['descripcion']}\n")
-            archivo.write(f"Categoría: {gasto['categoria']}\n")
-            archivo.write(f"Costo: ${gasto['costo']:.2f}\n\n")
-        archivo.write(f"Saldo final: ${saldo_actual:.2f}")
-    messagebox.showinfo("Info", "Reporte generado correctamente como 'reporte_gastos.txt'.")
+    ventana_reporte = tk.Toplevel(root)
+    ventana_reporte.title("Generar Reporte")
+    
+    frame = ttk.Frame(ventana_reporte, padding="10")
+    frame.pack(fill="both", expand=True)
+    
+    ttk.Label(frame, text="Seleccione el rango de fechas para el reporte").pack(pady=5)
+    
+    ttk.Label(frame, text="Fecha de Inicio (dd/mm/yyyy)").pack(pady=5)
+    fecha_inicio_entry = ttk.Entry(frame)
+    fecha_inicio_entry.pack(pady=5)
+    
+    ttk.Label(frame, text="Fecha de Fin (dd/mm/yyyy)").pack(pady=5)
+    fecha_fin_entry = ttk.Entry(frame)
+    fecha_fin_entry.pack(pady=5)
+    
+    def generar():
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_entry.get(), "%d/%m/%Y")
+            fecha_fin = datetime.strptime(fecha_fin_entry.get(), "%d/%m/%Y")
+            gastos_reporte = [gasto for gasto in gastos if fecha_inicio <= gasto["fecha"] <= fecha_fin]
+            if gastos_reporte:
+                with open(f"reporte_{fecha_inicio.strftime('%Y%m%d')}_{fecha_fin.strftime('%Y%m%d')}.txt", "w") as archivo:
+                    for gasto in gastos_reporte:
+                        archivo.write(f"{gasto['fecha'].strftime('%d/%m/%Y')} - {gasto['descripcion']} - ${gasto['costo']} - {gasto['categoria']}\n")
+                messagebox.showinfo("Info", "Reporte generado con éxito")
+            else:
+                messagebox.showinfo("Info", "No hay gastos registrados en el rango de fechas seleccionado")
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingrese fechas válidas")
+    
+    ttk.Button(frame, text="Generar", command=generar).pack(pady=10)
 
-# Función para configurar el fondo con una imagen
-def configurar_fondo(root):
-    # Carga la imagen de fondo
-    ruta_imagen = "gastar.jpg"  # Coloca la ruta correcta de tu imagen
-    imagen = Image.open(ruta_imagen)
+# Función para mostrar la pantalla de inicio de sesión/registro
+def mostrar_pantalla_inicio():
+    for widget in main_frame.winfo_children():
+        widget.destroy()
+    
+    ttk.Label(main_frame, text="Bienvenido", font=("Cambria", 16)).pack(pady=10)
+    ttk.Button(main_frame, text="Iniciar Sesión", command=iniciar_sesion).pack(pady=10)
+    ttk.Button(main_frame, text="Registrar Usuario", command=registrar_usuario).pack(pady=10)
 
-    # Función para redimensionar la imagen según el tamaño de la ventana
-    def redimensionar_imagen(event=None):
-        # Obtén las dimensiones de la ventana
-        width = root.winfo_width()
-        height = root.winfo_height()
-
-        # Redimensiona la imagen al tamaño de la ventana
-        imagen_resized = imagen.resize((width, height), Image.LANCZOS)
-        fondo_imagen = ImageTk.PhotoImage(imagen_resized)
-
-        # Configura el canvas con la imagen de fondo
-        canvas.create_image(0, 0, image=fondo_imagen, anchor="nw")
-        canvas.image = fondo_imagen  # Guarda la referencia para evitar el garbage collection
-
-    # Crea el canvas y coloca la imagen de fondo inicial
-    canvas = tk.Canvas(root, width=root.winfo_width(), height=root.winfo_height())
-    canvas.pack(fill="both", expand=True)
-    redimensionar_imagen()
-
-    # Configura el evento para redimensionar la imagen cuando la ventana cambie de tamaño
-    root.bind("<Configure>", redimensionar_imagen)
-
-# Inicializa la ventana principal de Tkinter
+# Configuración de la ventana principal
 root = tk.Tk()
 root.title("Gestor de Dinero y Gastos")
-root.geometry("800x900")
+root.geometry("400x500")
 
-style = ttk.Style()
-style.configure("TButton", padding=6, relief="flat", background="#ccc", font=("Cambria", 10), foreground="black")
-style.configure("TLabel", padding=6, background="black", font=("Cambria", 12), foreground="white")
-style.configure("TFrame", background="black")
-
-# Crear frame principal
-main_frame = ttk.Frame(root, padding="20", style="TFrame")
-
-# Configurar el fondo
-configurar_fondo(root)
-
+main_frame = ttk.Frame(root, padding="10")
 main_frame.pack(fill="both", expand=True)
 
-# Botón para introducir el saldo inicial
-#ttk.Button(main_frame, text="Configurar Saldo Inicial", command=configurar_saldo_inicial).pack(pady=20)
+# Verificar si existe el archivo de usuarios, sino crearlo
+if not os.path.exists("usuarios.json"):
+    with open("usuarios.json", "w") as archivo:
+        json.dump({}, archivo)
 
-# Mostrar menú principal
-mostrar_menu_principal()
+mostrar_pantalla_inicio()  # Mostrar la pantalla de inicio al iniciar la aplicación
 
-# Cargar datos al iniciar la aplicación
-cargar_datos()
-
-# Iniciar el bucle principal de la interfaz gráfica
 root.mainloop()
