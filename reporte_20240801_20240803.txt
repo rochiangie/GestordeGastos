@@ -1,0 +1,16 @@
+02/08/2024 - Visa - $180000.0 - Tarjetas
+02/08/2024 - AMEX - $110000.0 - Tarjetas
+02/08/2024 - debito santander - $74000.0 - Tarjetas
+02/08/2024 - mp - $100000.0 - Deudas
+02/08/2024 - Cencosud - $365000.0 - Tarjetas
+02/08/2024 - deudas - $50000.0 - Deudas
+02/08/2024 - Cami - $100000.0 - Camila
+02/08/2024 - Contadora - $15000.0 - Servicios
+02/08/2024 - AFIP - $40000.0 - Servicios
+02/08/2024 - Nini| - $150000.0 - Comida
+02/08/2024 - Servicios - $80000.0 - Servicios
+02/08/2024 - Kiosco - $75000.0 - Compras
+02/08/2024 - Plantas - $15000.0 - Compras
+02/08/2024 - Psico - $50000.0 - Servicios
+02/08/2024 - Verdu - $60000.0 - Comida
+02/08/2024 - Salidas - $100000.0 - Compras

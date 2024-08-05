@@ -123,7 +123,7 @@ def iniciar_sesion():
         if usuario in usuarios and usuarios[usuario] == contrasena:
             usuario_actual = usuario
             cargar_datos()
-            messagebox.showinfo("Info", f"Bienvenido {usuario_actual}")
+            messagebox.showinfo("Info", f"Bienvenidx {usuario_actual}")
             ventana_login.destroy()
             mostrar_menu_principal()
         else:
@@ -156,7 +156,7 @@ def iniciar_sesion():
         if usuario in usuarios and usuarios[usuario] == contrasena:
             usuario_actual = usuario
             cargar_datos()
-            messagebox.showinfo("Info", f"Bienvenido {usuario_actual}")
+            messagebox.showinfo("Info", f"Bienvenidx {usuario_actual}")
             ventana_login.destroy()
             mostrar_menu_principal()
         else:
@@ -424,7 +424,7 @@ def mostrar_pantalla_inicio():
     for widget in main_frame.winfo_children():
         widget.destroy()
     
-    ttk.Label(main_frame, text="Bienvenido", font=("Cambria", 16)).pack(pady=10)
+    ttk.Label(main_frame, text="Bienvenidx", font=("Cambria", 16)).pack(pady=10)
     ttk.Button(main_frame, text="Iniciar Sesión", command=iniciar_sesion).pack(pady=10)
     ttk.Button(main_frame, text="Registrar Usuario", command=registrar_usuario).pack(pady=10)
 
